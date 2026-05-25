@@ -1,0 +1,12 @@
+fastapi
+uvicorn==0.30.6
+python-multipart
+pypdf
+chromadb
+openai
+python-dotenv
+pydantic-settings
+structlog
+sentence-transformers
+jinja2
+aiofiles

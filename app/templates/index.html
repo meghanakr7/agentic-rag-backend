@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Agentic RAG Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="page">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">Agentic RAG Backend</p>
+                <h1>Aerospace Systems Engineering Knowledge Assistant</h1>
+                <p class="subtitle">
+                    Upload technical documents and ask grounded questions using an agentic RAG pipeline.
+                </p>
+            </div>
+            <div class="status-card">
+                <span class="status-dot"></span>
+                FastAPI Online
+            </div>
+        </header>
+
+        <main class="layout">
+            <section class="panel">
+                <h2>Document Ingestion</h2>
+                <p class="muted">
+                    Upload a PDF or TXT document. The backend extracts text, chunks it,
+                    generates embeddings, and stores them in ChromaDB.
+                </p>
+
+                <form id="uploadForm">
+                    <input type="file" id="fileInput" accept=".pdf,.txt" required>
+                    <button type="submit">Upload Document</button>
+                </form>
+
+                <div id="uploadResult" class="result-box hidden"></div>
+            </section>
+
+            <section class="panel chat-panel">
+                <h2>Chat</h2>
+                <p class="muted">
+                    Try greetings, sensitive requests, or questions about the NASA handbook.
+                </p>
+
+                <div id="chatWindow" class="chat-window">
+                    <div class="message assistant">
+                        Hello! Ask me about the uploaded NASA Systems Engineering Handbook.
+                    </div>
+                </div>
+
+                <form id="chatForm" class="chat-form">
+                    <input
+                        type="text"
+                        id="queryInput"
+                        placeholder="Ask: What is verification in NASA systems engineering?"
+                        required
+                    >
+                    <button type="submit">Send</button>
+                </form>
+
+                <div class="examples">
+                    <button data-query="hello">Greeting</button>
+                    <button data-query="What is verification in NASA systems engineering?">RAG Question</button>
+                    <button data-query="Give me confidential customer data">Escalation</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

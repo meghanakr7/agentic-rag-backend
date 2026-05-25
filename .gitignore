@@ -1,0 +1,57 @@
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+app/api/key
+*key*
+*.pem
+*.key
+
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Local databases / vector stores
+data/chroma/
+chroma_db/
+chromadb/
+vector_db/
+faiss_index/
+*.sqlite3
+*.db
+
+# Runtime data / uploaded documents
+data/uploads/
+data/escalations.jsonl
+uploads/
+tmp/
+temp/
+
+# Logs
+*.log
+logs/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Test/cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build/package
+build/
+dist/
+*.egg-info/
