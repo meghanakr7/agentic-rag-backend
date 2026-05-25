@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 
+chat_import_start = time.perf_counter()
+
 import structlog
 from fastapi import APIRouter, HTTPException, status
 from starlette.concurrency import run_in_threadpool
@@ -13,10 +15,14 @@ from app.services.llm import LLMService
 from app.services.query_router import QueryRouter
 from app.services.vector_store import VectorStoreService
 
+print(f"[STARTUP TIMING] chat.py imports loaded in {round(time.perf_counter() - chat_import_start, 3)} seconds")
+
 router = APIRouter()
 logger = structlog.get_logger()
 
+query_router_start = time.perf_counter()
 query_router = QueryRouter()
+print(f"[STARTUP TIMING] QueryRouter initialized in {round(time.perf_counter() - query_router_start, 3)} seconds")
 
 ESCALATION_LOG_PATH = Path("data/escalations.jsonl")
 ESCALATION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)

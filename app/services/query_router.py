@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from typing import Optional
 
 import structlog
@@ -27,15 +28,22 @@ class QueryRouter:
     """
 
     def __init__(self):
+        start = time.perf_counter()
+
         api_key = os.getenv("OPENAI_API_KEY")
         self.model = os.getenv("OPENAI_ROUTER_MODEL", "gpt-4.1-nano")
 
-        self.client: Optional[OpenAI] = None
+        self.client = None
         if api_key:
+            client_start = time.perf_counter()
             self.client = OpenAI(
                 api_key=api_key,
                 timeout=8.0,
                 max_retries=0,
+            )
+            logger.info(
+                "query_router_openai_client_created",
+                seconds=round(time.perf_counter() - client_start, 3),
             )
 
         self.escalation_keywords = [
@@ -57,6 +65,11 @@ class QueryRouter:
             "employee salary",
             "customer data",
         ]
+
+        logger.info(
+            "query_router_initialized",
+            seconds=round(time.perf_counter() - start, 3),
+        )
 
     def route(self, query: str) -> QueryRoute:
         normalized_query = query.strip()
@@ -183,4 +196,4 @@ User query:
         return any(phrase in cleaned_query for phrase in conversational_phrases)
 
     def _is_escalation(self, query: str) -> bool:
-        return any(keyword in query for keyword in self.escalation_keywords)
+        return any(keyword in query for keyword in self.escalation_keywords)        
