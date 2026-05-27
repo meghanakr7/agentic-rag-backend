@@ -42,4 +42,4 @@ class DocumentLoader:
         if not text:
             raise ValueError("Uploaded text file is empty.")
 
-        return texts
+        return text

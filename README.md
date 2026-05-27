@@ -74,6 +74,8 @@ User: Give me confidential information.
 Assistant: I cannot help with that request.
 ```
 
+
+
 ## Tech Stack
 
 - Python
@@ -245,6 +247,56 @@ Summarize the uploaded document.
 What are the key points?
 Give me confidential information.
 ```
+## Architectural Choices
+
+This project is organized as a modular FastAPI backend. FastAPI was chosen because it provides asynchronous API support, automatic request validation through Pydantic, and built-in Swagger documentation. Uvicorn is used as the ASGI server to run the application locally.
+
+The code is separated into API, service, schema, template, static, and utility layers. The API layer contains the ingestion and chat routes. The service layer contains the core business logic for document loading, text chunking, vector storage, query routing, and LLM response generation. This separation makes the application easier to test, debug, and extend.
+
+ChromaDB is used as the vector database because it is lightweight, easy to run locally, and supports persistent vector storage. The vector database stores document chunks, metadata, and embeddings so that user questions can retrieve the most relevant document context.
+
+OpenAI is used for query routing and final response generation. The router classifies the user query into conversational, RAG, or escalation. The final LLM response is generated only after relevant document chunks are retrieved from ChromaDB.
+
+## Chunking Strategy
+
+Uploaded PDF or TXT files are first parsed into raw text. The text is cleaned by removing extra whitespace and then split into overlapping chunks.
+
+The current chunking configuration uses:
+
+- Chunk size: 1200 characters
+- Chunk overlap: 200 characters
+
+Chunking is necessary because large documents cannot be efficiently embedded or passed fully into an LLM prompt. Smaller chunks allow the system to retrieve only the most relevant parts of the uploaded document.
+
+The overlap helps preserve context across chunk boundaries. If an important explanation is split between two chunks, the overlap reduces the chance that useful context is lost.
+
+## Vector Embedding Choice
+
+This project uses a local Sentence Transformers embedding model through ChromaDB:
+
+`all-MiniLM-L6-v2`
+
+This model converts each text chunk into a numerical vector representation. Similar pieces of text have similar vectors, which allows semantic search over the uploaded document.
+
+A local embedding model was chosen because it is lightweight, works well for local development, avoids per-request embedding API cost, and keeps document embedding generation inside the application environment.
+
+ChromaDB uses the configured embedding function to automatically generate embeddings when chunks are added to the collection. During chat, the user query is also embedded and compared with stored chunk vectors to retrieve the most relevant context.
+
+## Agentic Routing Strategy
+
+The chat endpoint uses an agentic query router before answering the user. The router classifies every query into one of three routes:
+
+1. Conversational
+2. RAG
+3. Escalation
+
+Conversational queries include greetings, small talk, and basic assistant-introduction questions. These are answered directly without retrieval.
+
+RAG queries are safe document-related questions. For these queries, the backend retrieves the top relevant chunks from ChromaDB and sends them to the LLM to generate a grounded answer.
+
+Escalation queries include sensitive, private, unsafe, confidential, unauthorized, or security-related requests. These are declined and recorded in `data/escalations.jsonl`.
+
+The routing system uses a safety-first approach. Obvious escalation requests are detected before retrieval. Then an LLM-based router classifies the query. If the LLM router fails, fallback rules classify the query using local checks. This ensures the system can still handle greetings, document questions, and sensitive requests even if the LLM router is unavailable.
 
 ## Validation Checklist
 
